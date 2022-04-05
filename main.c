@@ -1,62 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
+#include <windows.h>
 
 void test0();
-void test1();
 
 int main()
 {
-	test1();
+	test0();
 	return 0;
-
 }
 
 int compare(const void* str1_void, const void* str2_void)
 {
-	char *const str1 = str1_void;
-	char *const str2 = str2_void;
-	return strcmp(*str1,*str2);
+	unsigned char** str1 = (unsigned char**)str1_void;
+	unsigned char** str2 = (unsigned char**)str2_void;
+	return strcmp(*str1, *str2);
 }
 
 void test0()
 {
-	FILE* book;
-	errno_t err;
-	char* filename = (char*)malloc(13 * sizeof(char));
-	printf_s("Please, enter the name of file needed to get sorted (max 12 characters): ");
-	gets_s(filename, 12);
-	err = fopen_s(&book, filename, "r");
-	if (err == 0)
+	FILE* fp;
+	int i = 0;
+	int len = 0;
+	errno_t open;
+	setlocale(0, "rus");
+	char* filename = (char*)calloc(13, sizeof(char));
+	char** text = (char**)calloc(1, sizeof(char*));
+	printf("Please, enter the name of file (max 12 characters): ");
+	gets_s(filename, 13);
+	open = fopen_s(&fp, filename, "r+");
+	if (open == 0)
+	{
 		printf("File was successfully opened.\n");
+		while (!feof(fp))
+		{
+			text[i] = (char*)malloc(250 * sizeof(char));
+			fgets(text[i], 250, fp);
+			i++;
+			len++;
+			text = (char**)realloc(text, (i + 1) * sizeof(char*));
+		}
+		qsort(text, 20, sizeof(char*), compare);
+		for (int i = 0; i < 20; i++)
+		{
+			printf(text[i]);
+			//fprintf_s(fp, text[i]);
+			Sleep(75);
+		}
+		for (int i = 0; i < 20; i++)
+			free(text[i]);
+		free(text);
+	}
 	else
 	{
 		printf("Couldn't open file.\n");
 		exit(1);
 	}
 	int close = _fcloseall();
-}
-
-void test1()
-{
-	char* s1 = "Goes after every morning";
-	int len1 = strlen(s1);
-	char* s2 = "Easy as could be";
-	int len2 = strlen(s2);
-	char* s3 = "Be careful with him";
-	int len3 = strlen(s3);
-	char* s4 = "Don't worry";
-	int len4 = strlen(s4);
-	int total = len1 + len2 + len3 + len4;
-	char** mass = (char**)malloc(total * sizeof(char*));
-	for (int i = 0; i < total; i++)
-	{
-		mass[i] = (char*)malloc(len1 * sizeof(char));
-	}
-	qsort(mass, total, sizeof(char*), compare);
-	for (int i = 0; i < total; i++)
-	{
-		printf(mass[i]);
-		printf("\n");
-	}
 }
