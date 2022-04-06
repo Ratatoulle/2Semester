@@ -12,3 +12,10 @@ int compare(const void* str1_void, const void* str2_void)
 	else
 		return 0;
 }
+
+errno_t openFile(char* filename, FILE* f)
+{
+	errno_t open = 0;
+	open = fopen_s(&f, filename, "r+");
+	return open;
+}
