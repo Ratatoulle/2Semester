@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <locale.h>
 #include <windows.h>
+#include "tsort.h"
 
 void test0();
 
@@ -12,42 +10,37 @@ int main()
 	return 0;
 }
 
-int compare(const void* str1_void, const void* str2_void)
+void test0(void)
 {
-	unsigned char** str1 = (unsigned char**)str1_void;
-	unsigned char** str2 = (unsigned char**)str2_void;
-	return strcmp(*str1, *str2);
-}
-
-void test0()
-{
-	FILE* fp;
+	FILE* _Read;
 	int i = 0;
-	int len = 0;
 	errno_t open;
-	setlocale(0, "rus");
 	char* filename = (char*)calloc(13, sizeof(char));
 	char** text = (char**)calloc(1, sizeof(char*));
+	setlocale(0, "rus");
 	printf("Please, enter the name of file (max 12 characters): ");
 	gets_s(filename, 13);
-	open = fopen_s(&fp, filename, "r+");
+	open = fopen_s(&_Read, filename, "r+");
 	if (open == 0)
 	{
 		printf("File was successfully opened.\n");
-		while (!feof(fp))
+		while (!feof(_Read))
 		{
 			text[i] = (char*)malloc(250 * sizeof(char));
-			fgets(text[i], 250, fp);
+			fgets(text[i], 250, _Read);
+			int lastpos = strlen(text[i]) - 1;
+			if (text[i][lastpos] == '\n')
+				text[i][lastpos] = '\0';
 			i++;
-			len++;
 			text = (char**)realloc(text, (i + 1) * sizeof(char*));
 		}
 		qsort(text, 20, sizeof(char*), compare);
 		for (int i = 0; i < 20; i++)
 		{
 			printf(text[i]);
-			//fprintf_s(fp, text[i]);
-			Sleep(75);
+			fprintf(_Read,text[i]);
+			printf("\n");
+			fprintf(_Read,"\n");
 		}
 		for (int i = 0; i < 20; i++)
 			free(text[i]);
